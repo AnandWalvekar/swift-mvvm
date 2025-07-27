@@ -72,6 +72,14 @@ class UserDetailsViewController: UIViewController {
         // populate data in hand
         self.userNameLabel.text = self.userDM.name
         
+        //customise the look
+        let parentView = self.userNameLabel.superview
+        parentView?.layer.cornerRadius = 8
+        parentView?.layer.shadowColor = UIColor.lightGray.cgColor
+        parentView?.layer.shadowOpacity = 1
+        parentView?.layer.shadowOffset = CGSize.zero
+        parentView?.layer.shadowRadius = 5
+        
         // fire request for more data
         viewModel.fetchUserDetails()
     }

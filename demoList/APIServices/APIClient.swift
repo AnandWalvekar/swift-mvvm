@@ -83,7 +83,7 @@ class APIClient {
     func fetch<T: Decodable>(request: Request) async throws ->  T {
         var urlRequest = try environment.resolvedUrl(path: request.path)
         urlRequest.httpMethod = request.method.rawValue
-        urlRequest.setValue("Bearer \(Constants.githubPersoanlAcesssToken)", forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("Bearer \(Constants.githubPersoanlAcesssToken)", forHTTPHeaderField: "Authorization")        
         
         do {
             let data: (Data, URLResponse) = try await URLSession.shared.data(for: urlRequest)

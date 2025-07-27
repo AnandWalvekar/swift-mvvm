@@ -4,9 +4,7 @@ import UIKit
 
 class UserTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var labelCountryCode: UILabel!
-    @IBOutlet weak var labelCountryCapital: UILabel!
-    @IBOutlet weak var labelCountryName: UILabel!
+    @IBOutlet weak var labelUserName: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
     }

@@ -4,14 +4,13 @@ import UIKit
 
 class UserListController: UIViewController {
     private(set) var viewModel: UserListVM!
-    @IBOutlet weak var searchbarCountry: UISearchBar!
-    @IBOutlet weak var tableViewCountryList: UITableView!
+    @IBOutlet weak var searchbar: UISearchBar!
+    @IBOutlet weak var tableView: UITableView!
     let cellNib = String(describing: UserTableViewCell.self)
     private(set) var searchText: String = ""
-    private(set) var filteredCountryList : [UserDM] = []
+    private(set) var filteredUserList : [UserDM] = []
     var onSelectUser: ((UserDM) -> UIViewController)?
-    
-    
+        
     init(_ viewModel: UserListVM) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -39,12 +38,12 @@ class UserListController: UIViewController {
     // MARK: - View methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableViewCountryList.register(UINib(nibName: cellNib, bundle: nil), forCellReuseIdentifier: cellNib)
-        tableViewCountryList.delegate = self
-        tableViewCountryList.dataSource = self
-        searchbarCountry.delegate = self
-        searchbarCountry.placeholder = "Search by Country or Capital"
-        searchbarCountry.setNeedsDisplay()
+        tableView.register(UINib(nibName: cellNib, bundle: nil), forCellReuseIdentifier: cellNib)
+        tableView.delegate = self
+        tableView.dataSource = self
+        searchbar.delegate = self
+        searchbar.placeholder = "Type here to filter"
+        searchbar.setNeedsDisplay()
         fetchUserList()
     }
 
@@ -52,9 +51,9 @@ class UserListController: UIViewController {
     func fetchUserList() {
         Task {
             await viewModel.fetchUsers()
-            self.filteredCountryList = viewModel.filteredCounties(searchText: nil)
+            self.filteredUserList = viewModel.filteredCounties(searchText: nil)
             DispatchQueue.main.async {
-                self.tableViewCountryList.reloadData()
+                self.tableView.reloadData()
             }
         }        
     }
@@ -66,20 +65,18 @@ extension UserListController: UITableViewDelegate,UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredCountryList.count
+        return filteredUserList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellNib, for: indexPath) as! UserTableViewCell
-        let country = filteredCountryList[indexPath.row]
-//        cell.labelCountryCode.text = country.code
-        cell.labelCountryName.text = country.name
-//        cell.labelCountryCapital.text = country.capital
+        let user = filteredUserList[indexPath.row]
+        cell.labelUserName.text = user.name
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let destinationViewController = onSelectUser?(filteredCountryList[indexPath.row]) else { return }
+        guard let destinationViewController = onSelectUser?(filteredUserList[indexPath.row]) else { return }
         
         //Kind of navigation decided by viewController. Destination viewController is desided by router
         self.navigationController?.pushViewController(destinationViewController, animated: true)
@@ -93,18 +90,18 @@ extension UserListController: UISearchBarDelegate {
         
         if searchText.isEmpty {
             print("its empty")
-            filteredCountryList = viewModel.filteredCounties(searchText: "")
+            filteredUserList = viewModel.filteredCounties(searchText: "")
         } else {
-            filteredCountryList = viewModel.filteredCounties(searchText: searchText)
+            filteredUserList = viewModel.filteredCounties(searchText: searchText)
         }
-        tableViewCountryList.reloadData()
+        tableView.reloadData()
     }
     
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
-        filteredCountryList = viewModel.users
-        tableViewCountryList.reloadData()
+        filteredUserList = viewModel.users
+        tableView.reloadData()
         searchBar.resignFirstResponder()
     }
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

@@ -59,15 +59,17 @@ class UserDetailsViewModel: UserDetailsVM {
     private func fetchFollowersAndFollowing()  {
         Task {
             do {
-                async let followers = userService.getAssociatedUsers(userName: userDM.name, linkedUserType: .followers)
-                async let following = userService.getAssociatedUsers(userName: userDM.name, linkedUserType: .following)
                 
-                // Concurrently perform both api requests
-                let linkedUser = try await [followers, following]
-                
-                userDetailsDM = UserDetailsDM(user: userDM)
-                userDetailsDM?.followersCount = linkedUser[0].count
-                userDetailsDM?.followingCount = linkedUser[0].count
+                let user = try await userService.getUserDetails(userName: userDM.name)
+//                async let followers = userService.getAssociatedUsers(userName: userDM.name, linkedUserType: .followers)
+//                async let following = userService.getAssociatedUsers(userName: userDM.name, linkedUserType: .following)
+//                
+//                // Concurrently perform both api requests
+//                let linkedUser = try await [followers, following]
+//                
+//                userDetailsDM = UserDetailsDM(user: userDM)
+                userDetailsDM?.followersCount = user.followers
+                userDetailsDM?.followingCount = user.following
                 print("followers/following: \(userDetailsDM?.followersCount) \(userDetailsDM?.followingCount)")
             } catch {
                 print("Handling error in view model")

@@ -10,8 +10,8 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UserListController" customModule="demoList" customModuleProvider="target">
             <connections>
-                <outlet property="searchbarCountry" destination="qQQ-hH-iDP" id="EH6-re-gD4"/>
-                <outlet property="tableViewCountryList" destination="30A-no-9y8" id="EKI-0z-cmg"/>
+                <outlet property="searchbar" destination="qQQ-hH-iDP" id="EH6-re-gD4"/>
+                <outlet property="tableView" destination="30A-no-9y8" id="EKI-0z-cmg"/>
                 <outlet property="view" destination="tvu-UZ-Sao" id="JZW-pV-XQz"/>
             </connections>
         </placeholder>

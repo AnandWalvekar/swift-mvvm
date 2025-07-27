@@ -35,9 +35,9 @@ class UserListViewModel: UserListVM {
         }
         
         let lowercasedSearchText = searchText!.lowercased()
-        return users.filter { country in
-            return country.name.lowercased().contains(lowercasedSearchText) ||
-            country.name.lowercased().contains(lowercasedSearchText)
+        return users.filter { user in
+            return user.name.lowercased().contains(lowercasedSearchText) ||
+            user.name.lowercased().contains(lowercasedSearchText)
         }
     }
     
