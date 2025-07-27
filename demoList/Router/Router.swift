@@ -1,10 +1,16 @@
 
 import UIKit
+import SwiftUI
 
 struct Router {
     static func mainViewController() -> UIViewController {
         let countriesViewController = UserListController(UserListViewModel(userService:GithubUserService()))
+        
+        //Dependency on ViewController
         countriesViewController.onSelectUser = userDetailsViewController
+        
+        //Uncomment below line to see Dependency on SwiftUI View
+//        countriesViewController.onSelectUser = swiftUIuserDetailsViewController
         return countriesViewController
     }
     
@@ -19,6 +25,11 @@ struct Router {
         
         // view controller with view model
         let vc = UserDetailsViewController(vm, userDM: userDM)
+        return vc
+    }
+    
+    private static func swiftUIuserDetailsViewController(userDM : UserDM) -> UIViewController {
+        let vc = UIHostingController(rootView: UserDetailsView())
         return vc
     }
     
