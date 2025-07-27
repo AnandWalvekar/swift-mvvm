@@ -9,6 +9,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        APIClient.configure(tokenService: InMemoryTokenService(accessToken: Constants.githubPersoanlAcesssToken, refreshToken: Constants.githubPersoanlAcesssToken))
         return true
     }
 

@@ -20,7 +20,7 @@ enum Enviroment : String, APIClientHelper {
     }
     
     //Pure fuction : Testable
-    func resolvedUrl(path: String, cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy, timeoutInterval: TimeInterval = 60.0) throws -> URLRequest {
+    func resolvedUrl(path: String, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval) throws -> URLRequest {
         let urlString = "\(self.baseUrl)/\(path)"
         
         guard let url = URL(string: urlString) else {
@@ -77,17 +77,22 @@ protocol APIClientService {
 }
 
 struct APIClient : APIClientService {
-    static let shared = APIClient()
+    static var shared = APIClient()
     private let environment: Enviroment = .development
     let cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
     let timeoutInterval: TimeInterval = 60.0
-    
+    private var tokenService: TokenService!
+        
     private init() {}
     
+    static func configure(tokenService: TokenService) {
+        shared.tokenService = tokenService
+    }
+    
     func fetch<T: Decodable>(request: Request) async throws ->  T {
-        var urlRequest = try environment.resolvedUrl(path: request.path)
+        var urlRequest = try environment.resolvedUrl(path: request.path, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
         urlRequest.httpMethod = request.method.rawValue
-        urlRequest.setValue("Bearer \(Constants.githubPersoanlAcesssToken)", forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("Bearer \(tokenService.getAccessToken())", forHTTPHeaderField: "Authorization")
         
         do {
             let data: (Data, URLResponse) = try await URLSession.shared.data(for: urlRequest)
