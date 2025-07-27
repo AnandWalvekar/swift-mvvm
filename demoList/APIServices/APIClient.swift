@@ -72,7 +72,11 @@ extension Request {
     var queryItems: [URLQueryItem] { [] }
 }
 
-class APIClient {
+protocol APIClientService {
+    func fetch<T: Decodable>(request: Request) async throws ->  T
+}
+
+struct APIClient : APIClientService {
     static let shared = APIClient()
     private let environment: Enviroment = .development
     let cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
@@ -83,16 +87,48 @@ class APIClient {
     func fetch<T: Decodable>(request: Request) async throws ->  T {
         var urlRequest = try environment.resolvedUrl(path: request.path)
         urlRequest.httpMethod = request.method.rawValue
-        urlRequest.setValue("Bearer \(Constants.githubPersoanlAcesssToken)", forHTTPHeaderField: "Authorization")        
+        urlRequest.setValue("Bearer \(Constants.githubPersoanlAcesssToken)", forHTTPHeaderField: "Authorization")
         
         do {
             let data: (Data, URLResponse) = try await URLSession.shared.data(for: urlRequest)
+            if let response = data.1 as? HTTPURLResponse {
+                if (response.statusCode == 401) {
+                    throw NetworkError.clientError(response.statusCode)
+                }
+            }
             let decoded: T = try await environment.decode(data: data.0)
             return decoded
         } catch {
             throw NetworkError.urlError(error)
         }
     }
-    
 }
 
+struct RetryingAPIClient : APIClientService {
+    let client: APIClientService
+    
+    init(client: APIClientService, refreshToken: String? = nil) {
+        self.client = client
+    }
+    
+    func fetch<T: Decodable>(request: Request) async throws ->  T {
+        do {
+            let response: T = try await client.fetch(request: request)
+            return response
+        } catch {
+            switch error {
+            case let NetworkError.clientError(statusCode):
+                if statusCode == 401 {
+                    let response: RefreshTokenResponse = try await client.fetch(request: RefreshTokenRequest())
+                    if !response.accessToken.isEmpty {
+                        let response: T = try await client.fetch(request: request)
+                        return response
+                    }
+                }
+            default:
+                throw NetworkError.urlError(error)
+            }
+            throw NetworkError.urlError(error)
+        }
+    }
+}

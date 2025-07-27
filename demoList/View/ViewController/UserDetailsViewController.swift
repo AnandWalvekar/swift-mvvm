@@ -59,8 +59,8 @@ class UserDetailsViewController: UIViewController {
                 DispatchQueue.main.async {
                     self?.avatarImage.image = self?.viewModel.avatarImage
                     self?.repositoryTableView.reloadData()
-                    self?.followers.text = "\(self?.viewModel.userDetailsDM?.followersCount ?? 0)"
-                    self?.following.text = "\(self?.viewModel.userDetailsDM?.followingCount ?? 0)"
+                    self?.followers.text = "\(self?.viewModel.userDetailsDM.followersCount ?? 0)"
+                    self?.following.text = "\(self?.viewModel.userDetailsDM.followingCount ?? 0)"
                 }
             }
         }

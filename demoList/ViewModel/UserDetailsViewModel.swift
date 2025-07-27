@@ -4,7 +4,7 @@ import UIKit
 protocol UserDetailsVM: AnyObject {
     var repoService: RepositoryService { get }
     var repositories: [RepositoryDM] { get }
-    var userDetailsDM: UserDetailsDM? { get }
+    var userDetailsDM: UserDetailsDM { get }
     var avatarImage: UIImage? { get }
     func fetchUserDetails()
 }
@@ -14,16 +14,17 @@ class UserDetailsViewModel: UserDetailsVM {
     private(set) var repoService: RepositoryService
     private(set) var userService: UserService
     private(set) var assetDownloaderService: AssetDownloaderService
-    private(set) var userDM: UserDM
+//    private(set) var userDM: UserDM
     private(set) var avatarImage: UIImage?
     var repositories: [RepositoryDM] = []
-    var userDetailsDM: UserDetailsDM?
+    var userDetailsDM: UserDetailsDM
     
     init(userDM: UserDM, userService: UserService, repoService: RepositoryService, assetDownloaderService: AssetDownloaderService) {
         self.userService = userService
         self.repoService = repoService
         self.assetDownloaderService = assetDownloaderService
-        self.userDM = userDM
+//        self.userDM = userDM
+        self.userDetailsDM = UserDetailsDM(user: userDM)
     }
     
     func fetchUserDetails()  {
@@ -35,7 +36,7 @@ class UserDetailsViewModel: UserDetailsVM {
     private func fetchRepositories()  {
         Task {
             do {
-                let repos = try await repoService.getRepositories(userId: userDM.name)
+                let repos = try await repoService.getRepositories(userId: userDetailsDM.name)
                 repositories = repos.map({item in RepositoryDM(repository: item)})
                 print("repositories: \(repositories.count)")
             } catch {
@@ -47,7 +48,7 @@ class UserDetailsViewModel: UserDetailsVM {
     private func fetchAvatarImage()  {
         Task {
             do {
-                let imageData = try await assetDownloaderService.getAsset(url: userDM.imageUrl)
+                let imageData = try await assetDownloaderService.getAsset(url: userDetailsDM.imageUrl)
                 avatarImage = UIImage(data: imageData)!
                 print("image: \(imageData)")
             } catch {
@@ -60,7 +61,7 @@ class UserDetailsViewModel: UserDetailsVM {
         Task {
             do {
                 
-                let user = try await userService.getUserDetails(userName: userDM.name)
+                let user = try await userService.getUserDetails(userName: userDetailsDM.name)
 //                async let followers = userService.getAssociatedUsers(userName: userDM.name, linkedUserType: .followers)
 //                async let following = userService.getAssociatedUsers(userName: userDM.name, linkedUserType: .following)
 //                
@@ -68,9 +69,9 @@ class UserDetailsViewModel: UserDetailsVM {
 //                let linkedUser = try await [followers, following]
 //                
 //                userDetailsDM = UserDetailsDM(user: userDM)
-                userDetailsDM?.followersCount = user.followers
-                userDetailsDM?.followingCount = user.following
-                print("followers/following: \(userDetailsDM?.followersCount) \(userDetailsDM?.followingCount)")
+                userDetailsDM.followersCount = user.followers
+                userDetailsDM.followingCount = user.following
+                print("followers/following: \(userDetailsDM.followersCount) \(userDetailsDM.followingCount)")
             } catch {
                 print("Handling error in view model")
             }
